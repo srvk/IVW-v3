@@ -46,10 +46,10 @@ Vagrant.configure(2) do |config|
   #
   # config.vm.provider "virtualbox" do |vb|
   #   # Display the VirtualBox GUI when booting the machine
-  #   vb.gui = true
+  vb.gui = true
   #
   #   # Customize the amount of memory on the VM:
-  #   vb.memory = "1024"
+  vb.memory = "4096"
   # end
   #
   # View the documentation for the provider you are using for more
@@ -68,16 +68,12 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: <<-SHELL
     sudo apt-get update
 
-
     # xfce4-panel stuff
     sudo apt-get install -y xfce4-panel xterm gnome-terminal gnome-icon-theme lxappearance monodevelop gedit chromium-browser flite python-pexpect python-nltk python-unidecode openjdk-6-jre
 
     cd /home/vagrant
-    wget -qO- http://speechkitchen.org/vms/Data/vagranthome.tar.gz | tar zxv
+    wget -qO- http://speechkitchen.org/vms/Data/IVW3home.tar.gz | tar zxv
     chown -R vagrant:vagrant Downloads Desktop .config .bashrc
-
-    cd /kaldi-trunk/egs/voxforge/online_demo
-    wget -qO- http://speechkitchen.org/vms/Data/online_demo.tar.gz | tar zxv
 
     # fix: volume is sometimes zeroed at startup
     amixer set 'Master' 100% on
