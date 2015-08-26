@@ -82,3 +82,5 @@ It is important that you list the two input ingredients in alphabetical order. Y
 "cherry tree:spark dust":"fire",
 
 Make whatever kind of potion making rules you want!
+
+4) Combine the parser wrapper (python) with the speech recognition decoder (python) into one piece of code
