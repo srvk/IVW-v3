@@ -10,6 +10,12 @@ Vagrant.configure(2) do |config|
   # For a complete reference, please see the online documentation at
   # https://docs.vagrantup.com.
 
+  # do NOT automatically update guest additions
+  # (if you have installed vagrant-vbguest from https://github.com/dotless-de/vagrant-vbguest) 
+  # we will build the default ubuntu versions in order to enable
+  # virtualbox guest addition features like screen resize & cut/paste
+  config.vbguest.auto_update = false
+
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
   config.vm.box = "http://speechkitchen.org/boxes/mario-kaldi.box"
@@ -44,13 +50,16 @@ Vagrant.configure(2) do |config|
   # backing providers for Vagrant. These expose provider-specific options.
   # Example for VirtualBox:
   #
-  # config.vm.provider "virtualbox" do |vb|
-  #   # Display the VirtualBox GUI when booting the machine
-  vb.gui = true
-  #
-  #   # Customize the amount of memory on the VM:
-  vb.memory = "4096"
-  # end
+  config.vm.provider "virtualbox" do |vb|
+    # Display the VirtualBox GUI when booting the machine
+    vb.gui = true
+
+    # Customize the amount of memory on the VM:
+    vb.memory = "4096"
+
+    # Enable bidirectional clipboard
+    vb.customize ['modifyvm', :id, '--clipboard', 'bidirectional']
+  end
   #
   # View the documentation for the provider you are using for more
   # information on available options.
@@ -66,14 +75,67 @@ Vagrant.configure(2) do |config|
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
-    sudo apt-get update
+    apt-get update
 
-    # xfce4-panel stuff
-    sudo apt-get install -y xfce4-panel xterm gnome-terminal gnome-icon-theme lxappearance monodevelop gedit chromium-browser flite python-pexpect python-nltk python-unidecode openjdk-6-jre
+    apt-get install -y --no-install-recommends ubuntu-desktop unity-lens-applications indicator-session
+    apt-get install -y gnome-icon-theme monodevelop gedit flite python-pexpect python-nltk python-unidecode openjdk-6-jre\
+      python-pip
+    pip install http://www.cfilt.iitb.ac.in/biplab/practNLPTools-1.0.tar.gz
+    apt-get install -y xterm gnome-terminal firefox gedit
+    apt-get install -y gstreamer1.0-plugins-bad  gstreamer1.0-plugins-base gstreamer1.0-plugins-good  gstreamer1.0-pulseaudio  gstreamer1.0-plugins-ugly  gstreamer1.0-tools libgstreamer1.0-dev
+
+    apt-get upgrade -y
+    apt-get dist-upgrade -y
+
+    # rebuild VirtualBox kernel additions?
+#    apt-get install virtualbox-guest-dkms virtualbox-guest-utils virtualbox-guest-x11 #virtualbox
+    dpkg-reconfigure virtualbox-guest-dkms
+#    dpkg-reconfigure virtualbox
 
     cd /home/vagrant
-    wget -qO- http://speechkitchen.org/vms/Data/IVW3home.tar.gz | tar zxv
-    chown -R vagrant:vagrant Downloads Desktop .config .bashrc
+    #sometimes really slow
+    #wget -qO- http://speechkitchen.org/vms/Data/IVW3home.tar.gz | tar zxv
+    wget -nv http://speechkitchen.org/vms/Data/IVW3home.tar.gz
+    tar zxvf IVW3home.tar.gz
+    chown -R vagrant:vagrant Downloads Desktop .config .bashrc .local
+    rm IVW3home.tar.gz
+
+    ln -fs /home/vagrant /home/mario
+    chown vagrant:vagrant /home/mario
+
+    # link the gst demo against Kaldi libraries
+    cd /home/vagrant/Desktop/gst-kaldi-nnet2-online-demo/src
+    make
+
+    # update gnome panel menu icons
+
+    # create args for gconf command in /tmp/arg
+    cat <<'END' >/tmp/arg
+['application:///home/mario/startServices.desktop', 'application://gnome-terminal.desktop', 'application://nautilus.desktop', 'application://monodevelop.desktop', 'unity://running-apps', 'unity://expo-icon', 'unity://devices']
+END
+
+    # create dbus-launch command for vagrant to run in /tmp/dbus.sh
+    cat <<'END' >/tmp/dbus.sh
+dbus-launch --exit-with-session gsettings set com.canonical.Unity.Launcher favorites "`cat /tmp/arg`"
+END
+chmod +x /tmp/dbus.sh
+
+    # run it
+    su - vagrant -c /tmp/dbus.sh
+    # did it work?
+    #su -c 'dbus-launch --exit-with-session gsettings get com.canonical.Unity.Launcher favorites' vagrant
+
+    # enable automatic login
+    sudo sed -i 's|exec /sbin/getty -8 38400 tty1|exec /bin/login -f vagrant < /dev/tty1 > /dev/tty1 2>\&1|' /etc/init/tty1.conf
+
+    echo "[SeatDefaults]"           | sudo tee -a /usr/share/lightdm/lightdm.conf.d/50-autologin-vagrant.conf
+    echo "autologin-user=vagrant"   | sudo tee -a /usr/share/lightdm/lightdm.conf.d/50-autologin-vagrant.conf
+    echo "autologin-user-timeout=0" | sudo tee -a /usr/share/lightdm/lightdm.conf.d/50-autologin-vagrant.conf
+
+    # disable password lock
+    su - vagrant -c "dbus-launch --exit-with-session gsettings set org.gnome.desktop.screensaver lock-enabled        false"
+    su - vagrant -c "dbus-launch --exit-with-session gsettings set org.gnome.desktop.session     idle-delay          0"
+    su - vagrant -c "dbus-launch --exit-with-session gsettings set org.gnome.desktop.lockdown    disable-lock-screen 'true'"
 
     # fix: volume is sometimes zeroed at startup
     amixer set 'Master' 100% on
