@@ -88,8 +88,9 @@ Vagrant.configure(2) do |config|
     apt-get dist-upgrade -y
 
     # rebuild VirtualBox kernel additions?
-#    apt-get install virtualbox-guest-dkms virtualbox-guest-utils virtualbox-guest-x11 #virtualbox
-    dpkg-reconfigure virtualbox-guest-dkms
+    apt-get install -y virtualbox-guest-dkms # brings in virtualbox-guest-utils virtualbox-guest-x11
+#    DEBIAN_FRONTEND=noninteractive apt-get install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" virtualbox-guest-dkms
+#    dpkg-reconfigure virtualbox-guest-dkms
 #    dpkg-reconfigure virtualbox
 
     cd /home/vagrant
@@ -97,15 +98,19 @@ Vagrant.configure(2) do |config|
     #wget -qO- http://speechkitchen.org/vms/Data/IVW3home.tar.gz | tar zxv
     wget -nv http://speechkitchen.org/vms/Data/IVW3home.tar.gz
     tar zxvf IVW3home.tar.gz
-    chown -R vagrant:vagrant Downloads Desktop .config .bashrc .local
+    chown -R vagrant:vagrant Desktop .config .bashrc .local
     rm IVW3home.tar.gz
 
     ln -fs /home/vagrant /home/mario
     chown vagrant:vagrant /home/mario
 
     # link the gst demo against Kaldi libraries
-    cd /home/vagrant/Desktop/gst-kaldi-nnet2-online-demo/src
+    cd /home/vagrant/Desktop/gst-kaldi-nnet2-online/src
+    rm *.so
     make
+
+    ln -fs /home/vagrant /home/mario
+    chown vagrant:vagrant /home/mario
 
     # update gnome panel menu icons
 
@@ -141,5 +146,8 @@ chmod +x /tmp/dbus.sh
     amixer set 'Master' 100% on
     amixer set 'PCM' 100% on
     amixer set 'Mic' 100% on
+
+    # kick into desktop mode from terminal mode
+    service lightdm start
   SHELL
 end
