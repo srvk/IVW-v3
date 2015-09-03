@@ -14,7 +14,7 @@ Vagrant.configure(2) do |config|
   # (if you have installed vagrant-vbguest from https://github.com/dotless-de/vagrant-vbguest) 
   # we will build the default ubuntu versions in order to enable
   # virtualbox guest addition features like screen resize & cut/paste
-  config.vbguest.auto_update = false
+#  config.vbguest.auto_update = false
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
@@ -104,7 +104,13 @@ Vagrant.configure(2) do |config|
     ln -fs /home/vagrant /home/mario
     chown vagrant:vagrant /home/mario
 
-    # link the gst demo against Kaldi libraries
+    # prerequisites for newest gst demo: jansson
+    wget http://security.ubuntu.com/ubuntu/pool/main/j/jansson/libjansson4_2.7-1ubuntu1_amd64.deb
+    wget http://security.ubuntu.com/ubuntu/pool/main/j/jansson/libjansson-dev_2.7-1ubuntu1_amd64.deb
+    dpkg -i libjansson4_2.7-1ubuntu1_amd64.deb
+    dpkg -i libjansson-dev_2.7-1ubuntu1_amd64.deb
+    
+    # rebuild & link the gst demo against Kaldi libraries
     cd /home/vagrant/Desktop/gst-kaldi-nnet2-online/src
     rm *.so
     make
