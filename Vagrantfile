@@ -75,14 +75,21 @@ Vagrant.configure(2) do |config|
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
+    # prepare for newer mono
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+    apt-add-repository 'deb http://download.mono-project.com/repo/debian beta main'
+#    apt-add-repository 'deb http://download.mono-project.com/repo/debian wheezy main'
+#    apt-add-repository 'deb http://download.mono-project.com/repo/debian wheezy/snapshots/3.12.0 main'
     apt-get update
+    apt-get install -y --force-yes mono-runtime=4.0.4.1-0xamarin1
+    apt-get install -y --force-yes monodevelop=5.9.6.20-0xamarin1
 
     apt-get install -y --no-install-recommends ubuntu-desktop unity-lens-applications indicator-session
-    apt-get install -y gnome-icon-theme monodevelop gedit flite python-pexpect python-nltk python-unidecode openjdk-6-jre\
-      python-pip
+    apt-get install -y gnome-icon-theme gedit flite python-pexpect python-nltk python-unidecode openjdk-6-jre python-pip
     pip install http://www.cfilt.iitb.ac.in/biplab/practNLPTools-1.0.tar.gz
     apt-get install -y xterm gnome-terminal firefox gedit
-    apt-get install -y gstreamer1.0-plugins-bad  gstreamer1.0-plugins-base gstreamer1.0-plugins-good  gstreamer1.0-pulseaudio  gstreamer1.0-plugins-ugly  gstreamer1.0-tools libgstreamer1.0-dev
+    apt-get install -y gstreamer1.0-plugins-bad  gstreamer1.0-plugins-base gstreamer1.0-plugins-good\
+      gstreamer1.0-pulseaudio  gstreamer1.0-plugins-ugly  gstreamer1.0-tools libgstreamer1.0-dev
 
     apt-get upgrade -y
     apt-get dist-upgrade -y
