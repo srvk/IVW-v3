@@ -1,6 +1,6 @@
 Hello! Welcome to the Interactions in Virtual Worlds (IVW) machine.
 
-Firstly, you will need to setup a host only network on the vm. (Virtual box is recommended, because we use the default network it creates in the code.) For more information on how to do this visit http://speechkitchen.org/virtualbox-advanced-setup/
+Firstly, you will need to setup a host only network on the vm. (Virtual box is recommended, because we use the default network it creates in the code.) For more information on how to do this visit http://speech-kitchen.org/virtualbox-advanced-setup/
 
 Now start the vm by clicking the monkey. You could also run the start_backend.sh script by typing the following commands into a new terminal.
 
