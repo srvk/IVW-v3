@@ -55,4 +55,4 @@ If you want to add your own functions, just write them in the ActionClient, then
 
 You can look at the Next Steps file for more ideas if you play through this demo.
 
-I think that's everything. For more information you can check out speechkitchen.org.
+I think that's everything. For more information you can check out speech-kitchen.org.
