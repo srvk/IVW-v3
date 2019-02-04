@@ -102,8 +102,8 @@ Vagrant.configure(2) do |config|
 
     cd /home/vagrant
     #sometimes really slow
-    #wget -qO- http://speechkitchen.org/vms/Data/IVW3home.tar.gz | tar zxv
-    wget -nv http://speechkitchen.org/vms/Data/IVW3home.tar.gz
+    #wget -qO- http://speech-kitchen.org/vms/Data/IVW3home.tar.gz | tar zxv
+    wget -nv http://speech-kitchen.org/vms/Data/IVW3home.tar.gz
     tar zxvf IVW3home.tar.gz
     chown -R vagrant:vagrant Desktop .config .bashrc .local
     rm IVW3home.tar.gz
